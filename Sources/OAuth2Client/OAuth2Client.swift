@@ -16,8 +16,10 @@ public class OAuth2Client: NSObject {
     
     
     
-    public func signIn(with request: Request) -> Future<Credential, OAuth2Error> {
-        return Future { [weak self, logger] completion in
+    public func signIn(with request: Request) -> PassthroughSubject<Credential, OAuth2Error> {
+        let subject = PassthroughSubject<Credential, OAuth2Error>()
+        
+        _ = Future<Credential,OAuth2Error> { [weak self, logger] completion in
             guard let self = self else { return }
             guard let components = URLComponents(string: request.redirectUri),
                   let callbackScheme = request.specificScheme ?? components.scheme
@@ -32,16 +34,18 @@ public class OAuth2Client: NSObject {
                     switch result {
                     case .failure(let error):
                         logger.error("\(error.localizedDescription)")
+                        subject.send(completion: .failure(error))
                         completion(.failure(error))
                     default: break
                     }
                 } receiveValue: { [logger] credential in
                     logger.debug("\(credential.accessToken)")
+                    subject.send(credential)
                     completion(.success(credential))
                 }
                 .store(in: &self.cancellables)
-            
         }
+        return subject
     }
     
     public func signOut(with request: Request) -> Future<Credential, OAuth2Error> {
