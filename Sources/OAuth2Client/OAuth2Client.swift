@@ -11,7 +11,7 @@ public class OAuth2Client: NSObject {
     var logger: Logger
     
     //public var credentialUpdates = PassthroughSubject<Credential,OAuth2Error>()
-    @Published var credentialUpdates: Credential?
+    @Published public var credentialUpdates: Credential?
     
     public init(logger: Logger = .init()) {
         self.logger = logger
