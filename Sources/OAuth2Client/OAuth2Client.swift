@@ -10,7 +10,8 @@ public class OAuth2Client: NSObject {
     
     var logger: Logger
     
-    public var credentialUpdates = PassthroughSubject<Credential,OAuth2Error>()
+    //public var credentialUpdates = PassthroughSubject<Credential,OAuth2Error>()
+    @Published var credentialUpdates: Credential?
     
     public init(logger: Logger = .init()) {
         self.logger = logger
@@ -33,13 +34,12 @@ public class OAuth2Client: NSObject {
                     switch result {
                     case .failure(let error):
                         logger.error("\(error.localizedDescription)")
-                        self.credentialUpdates.send(completion: .failure(error))
                         completion(.failure(error))
                     default: break
                     }
                 } receiveValue: { [logger] credential in
                     logger.debug("\(credential.accessToken)")
-                    self.credentialUpdates.send(credential)
+                    self.credentialUpdates = credential
                     completion(.success(credential))
                 }
                 .store(in: &self.cancellables)
