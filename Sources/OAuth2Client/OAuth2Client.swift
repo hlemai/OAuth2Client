@@ -9,10 +9,7 @@ public class OAuth2Client: NSObject {
     private var cancellables: [AnyCancellable] = []
     
     var logger: Logger
-    
-    //public var credentialUpdates = PassthroughSubject<Credential,OAuth2Error>()
-    @Published public var credentialUpdates: Credential?
-    
+        
     public init(logger: Logger = .init()) {
         self.logger = logger
     }
@@ -39,7 +36,6 @@ public class OAuth2Client: NSObject {
                     }
                 } receiveValue: { [logger] credential in
                     logger.debug("\(credential.accessToken)")
-                    self.credentialUpdates = credential
                     completion(.success(credential))
                 }
                 .store(in: &self.cancellables)
