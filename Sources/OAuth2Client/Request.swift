@@ -94,9 +94,30 @@ extension Request {
         bodyValues["client_id"] = self.clientId
         bodyValues["code"] = code
         bodyValues["client_secret"] = self.clientSecret
+          
+        var arr: [String] = []
+        for (key, val) in bodyValues {
+            arr.append("\(key)=\(val.wwwFormURLEncodedString)")
+        }
+        request.httpBody =  arr.joined(separator: "&").data(using: .utf8, allowLossyConversion: true)
         
         
-        
+        return request
+    }
+
+    func buildRefresRequest(refreshtoken:String) -> URLRequest  {
+        var request = URLRequest(url: URL(string:tokenURL)! )
+        request.httpMethod = "POST"
+        request.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+
+        var bodyValues:  [String: String] = [:]
+        //bodyValues["redirect_uri"] = self.redirectUri
+        bodyValues["grant_type"] = "refresh_token"
+        bodyValues["client_id"] = self.clientId
+        bodyValues["refresh_token"] = refreshtoken
+        //bodyValues["code"] = code
+        bodyValues["client_secret"] = self.clientSecret
         
         var arr: [String] = []
         for (key, val) in bodyValues {

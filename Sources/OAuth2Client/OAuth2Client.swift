@@ -75,7 +75,7 @@ public class OAuth2Client: NSObject {
     > {
         Future { [weak self] completion in
             guard let self = self else { return }
-            self.requestToken(for: refreshToken,request:request)
+            self.requestRefreshToken(for: refreshToken,request:request)
                 .sink { (result) in
                     switch result {
                     case .failure(let error):
@@ -134,7 +134,26 @@ extension OAuth2Client {
             .store(in: &self.cancellables)
         }
     }
-    
+
+     fileprivate func requestRefreshToken(for refreshtoken: String, request : Request) -> AnyPublisher<Credential, OAuth2Error> {
+        let urlRequest = request.buildRefresRequest(refreshtoken: refreshtoken)
+        //        urlRequest.httpMethod = "POST"
+        //        urlRequest.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        //        urlRequest.addValue("application/json", forHTTPHeaderField: "Accept")
+        
+        return URLSession.shared.dataTaskPublisher(for: urlRequest)
+            .tryMap { data, response in
+                guard let httpResponse = response as? HTTPURLResponse, 200..<300 ~= httpResponse.statusCode
+                else {
+                    throw OAuth2Error.urlError(URLError(.badServerResponse))
+                }
+                return data
+            }
+            .decode(type: Credential.self, decoder: JSONDecoder.convertFromSnakeCase)
+            .mapError { OAuth2Error.decodingError($0 as NSError) }
+            .eraseToAnyPublisher()
+    }
+
     fileprivate func requestToken(for code: String, request : Request) -> AnyPublisher<Credential, OAuth2Error> {
         let urlRequest = request.buildTokenRequest(code: code)
         //        urlRequest.httpMethod = "POST"
