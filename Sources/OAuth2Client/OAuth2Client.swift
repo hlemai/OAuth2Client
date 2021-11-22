@@ -150,7 +150,10 @@ extension OAuth2Client {
                 return data
             }
             .decode(type: Credential.self, decoder: JSONDecoder.convertFromSnakeCase)
-            .mapError { OAuth2Error.decodingError($0 as NSError) }
+            .mapError { [weak self ]err -> OAuth2Error in
+                self?.logger.error("Error geting token : \(err.localizedDescription)")
+                return .invalidRedirectUri
+            }
             .eraseToAnyPublisher()
     }
 
