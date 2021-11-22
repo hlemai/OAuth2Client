@@ -79,7 +79,7 @@ public class OAuth2Client: NSObject {
                 .sink { (result) in
                     switch result {
                     case .failure(let error):
-                        completion(.failure(error))
+                        completion(.failure(.authError(error as NSError)))
                     default: break
                     }
                 } receiveValue: { credential in
