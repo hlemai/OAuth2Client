@@ -93,7 +93,9 @@ public class OAuth2Client: NSObject {
 
 extension OAuth2Client: ASWebAuthenticationPresentationContextProviding {
     public func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        ASPresentationAnchor()
+        let ret = ASPresentationAnchor()
+        return ret
+
     }
 }
 
