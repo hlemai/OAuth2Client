@@ -36,6 +36,16 @@ public struct Credential: Equatable, Codable {
         }
         self.expiresIn = expiresIn
     }
+
+    public init(accessToken:String,sub:String?,tokenType:String,refreshToken:String?,scope:String?,expiresIn:Int?,idToken:String?) {
+        self.accessToken = accessToken
+        self.sub = sub
+        self.tokenType = tokenType
+        self.refreshToken = refreshToken
+        self.scope = scope
+        self.expiresIn = expiresIn
+        self.idToken = idToken
+    }
     
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
